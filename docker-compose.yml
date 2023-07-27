@@ -37,14 +37,14 @@ services:
     command: gunicorn -b :5000 app:app
 
   frontend:
-    container_name: SHOTPING-frontend
+    container_name: shotping-frontend
     build:
-      context: ./SHOTPING-frontend
+      context: ./shotping-frontend
       dockerfile: Dockerfile
     volumes:
-      - ./SHOTPING-frontend/:/SHOTPING-frontend
-      - build_folder:/SHOTPING-frontend/dist
-      - ./SHOTPING-frontend/node_modules/:/SHOTPING-frontend/node_modules
+      - ./shotping-frontend/:/shotping-frontend
+      - build_folder:/shotping-frontend/dist
+      - ./shotping-frontend/node_modules/:/shotping-frontend/node_modules
     tty: true
     networks:
       - app-tier
@@ -64,8 +64,7 @@ services:
       - 80
       - 443
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
-      - build_folder:/var/www/SHOTPING-frontend
+      - build_folder:/var/www/shotping-frontend
       - ./nginx/log:/var/log/nginx
     networks:
       - app-tier
