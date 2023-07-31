@@ -178,79 +178,77 @@ services:
   #   depends_on:
   #     - prometheus
 
-  # elasticsearch:
-  #   container_name: elasticsearch
-  #   build:
-  #     context: ./elk/elasticsearch
-  #     args:
-  #       ELASTIC_VERSION: 8.8.2
-  #   volumes:
-  #     - ./elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,Z
-  #     - elasticsearch:/usr/share/elasticsearch/data:Z
-  #   ports:
-  #     - 9200:9200
-  #     - 9300:9300
-  #   environment:
-  #     node.name: elasticsearch
-  #     ES_JAVA_OPTS: -Xms256m -Xmx256m
-  #     ELASTIC_PASSWORD: changeme
-  #     discovery.type: single-node
-  #   restart: unless-stopped
-  #   mem_limit: 512m
+  elasticsearch:
+    container_name: elasticsearch
+    build:
+      context: ./elk/elasticsearch
+      args:
+        ELASTIC_VERSION: 8.8.2
+    volumes:
+      - ./elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,Z
+      - elasticsearch:/usr/share/elasticsearch/data:Z
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      node.name: elasticsearch
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      ELASTIC_PASSWORD: changeme
+      discovery.type: single-node
+    restart: unless-stopped
 
-  # logstash:
-  #   container_name: logstash
-  #   build:
-  #     context: ./elk/logstash
-  #     args:
-  #       ELASTIC_VERSION: 8.8.2
-  #   volumes:
-  #     - ./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
-  #     - ./elk/logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
-  #   ports:
-  #     - 5044:5044
-  #     - 50000:50000/tcp
-  #     - 50000:50000/udp
-  #     - 9600:9600
-  #   environment:
-  #     LS_JAVA_OPTS: -Xms256m -Xmx256m
-  #     LOGSTASH_INTERNAL_PASSWORD: changeme
-  #   depends_on:
-  #     - elasticsearch
-  #   restart: unless-stopped
-  #   mem_limit: 512m
+  logstash:
+    container_name: logstash
+    build:
+      context: ./elk/logstash
+      args:
+        ELASTIC_VERSION: 8.8.2
+    volumes:
+      - ./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
+      - ./elk/logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
+    ports:
+      - 5044:5044
+      - 50000:50000/tcp
+      - 50000:50000/udp
+      - 9600:9600
+    environment:
+      LS_JAVA_OPTS: -Xms512m -Xmx512m
+      LOGSTASH_INTERNAL_PASSWORD: changeme
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
 
-  # kibana:
-  #   container_name: kibana
-  #   build:
-  #     context: ./elk/kibana
-  #     args:
-  #       ELASTIC_VERSION: 8.8.2
-  #   volumes:
-  #     - ./elk/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
-  #   ports:
-  #     - 5601:5601
-  #   environment:
-  #     KIBANA_SYSTEM_PASSWORD: changeme
-  #   depends_on:
-  #     - elasticsearch
-  #   restart: unless-stopped
+  kibana:
+    container_name: kibana
+    build:
+      context: ./elk/kibana
+      args:
+        ELASTIC_VERSION: 8.8.2
+    volumes:
+      - ./elk/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
+    ports:
+      - 5601:5601
+    environment:
+      KIBANA_SYSTEM_PASSWORD: changeme
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
 
-  # filebeat:
-  #   container_name: filebeat
-  #   build:
-  #     context: ./elk/filebeat
-  #     args:
-  #       ELASTIC_VERSION: 8.8.2
-  #   entrypoint: "filebeat -e -strict.perms=false"
-  #   volumes:
-  #     - ./elk/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml
-  #     - ./elk/logs:/usr/share/filebeat/logs
-  #   depends_on:
-  #     - logstash
-  #     - elasticsearch
-  #     - kibana
-  #   mem_limit: 512m
+  filebeat:
+    container_name: filebeat
+    build:
+      context: ./elk/filebeat
+      args:
+        ELASTIC_VERSION: 8.8.2
+    entrypoint: "filebeat -e -strict.perms=false"
+    volumes:
+      - ./elk/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      # - ./elk/logs:/usr/share/filebeat/logs
+      - ./nginx/log:/usr/share/filebeat/logs  # Nginx 로그 디렉토리 추가
+    depends_on:
+      - logstash
+      - elasticsearch
+      - kibana
 
 volumes:
   prometheus_data: {}

@@ -5,3 +5,9 @@
 http.host: 0.0.0.0
 
 node.name: logstash
+
+pipeline.batch.size: 125
+pipeline.batch.delay: 50
+
+
+log.level: warn
